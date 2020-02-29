@@ -78,7 +78,7 @@ module "slb_http" {
   ssl_certificates = {
     tls_cipher_policy  = "tls_cipher_policy_1_2"
     // you can specify the field 'server_certificate_id' to create listeners, field 'server_certificate' and 'private_key' will be ignore.
-    // server_certificate_id = "1182725234319447_16fdb8408c8_-662893411_xxxxxxx"
+    // server_certificate_id = "1182725xxxxxx_16fdb8408c8_-662893411_xxxxxxx"
     
     // you can specify file path to field 'server_certificate' and 'private_key'
     server_certificate = "-----BEGIN CERTIFICATE-----\nMIIDRjCCAq+g...\n-----END CERTIFICATE-----"

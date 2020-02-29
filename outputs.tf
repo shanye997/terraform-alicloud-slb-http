@@ -86,5 +86,5 @@ output "rule_ids" {
 
 output "this_server_certificate_id" {
   description = "The id of slb server certificate"
-  value = local.server_certificate_id
+  value       = local.server_certificate_id
 }
