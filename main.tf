@@ -34,15 +34,13 @@ locals {
 
 // Slb Module
 module "slb" {
-  source                          = "alibaba/slb/alicloud"
-  region                          = var.region
-  profile                         = var.profile
-  shared_credentials_file         = var.shared_credentials_file
-  skip_region_validation          = var.skip_region_validation
-  use_existing_slb                = var.use_existing_slb
+  source = "alibaba/slb/alicloud"
+
+  create           = var.create_slb
+  use_existing_slb = var.use_existing_slb
+
   existing_slb_id                 = var.existing_slb_id
-  create                          = var.create_slb
-  name                            = "TF-slb-http-module"
+  name                            = var.name
   address_type                    = var.address_type
   internet_charge_type            = var.internet_charge_type
   spec                            = var.spec
@@ -60,39 +58,35 @@ module "slb" {
 }
 
 module "slb_http_listener" {
-  source                  = "terraform-alicloud-modules/slb-listener/alicloud"
-  create                  = var.create_slb || var.use_existing_slb ? var.create_http_listener : false
-  profile                 = var.profile
-  region                  = var.region
-  shared_credentials_file = var.shared_credentials_file
-  skip_region_validation  = var.skip_region_validation
-  slb                     = module.slb.this_slb_id
-  listeners               = local.http_listeners
-  health_check            = var.health_check
-  advanced_setting        = var.advanced_setting
-  x_forwarded_for         = var.x_forwarded_for
+  source = "terraform-alicloud-modules/slb-listener/alicloud"
+
+  create = var.create_slb || var.use_existing_slb ? var.create_http_listener : false
+
+  slb              = module.slb.this_slb_id
+  listeners        = local.http_listeners
+  health_check     = var.health_check
+  advanced_setting = var.advanced_setting
+  x_forwarded_for  = var.x_forwarded_for
 }
 
 module "slb_https_listener" {
-  source                  = "terraform-alicloud-modules/slb-listener/alicloud"
-  create                  = var.create_slb || var.use_existing_slb ? var.create_https_listener : false
-  profile                 = var.profile
-  region                  = var.region
-  shared_credentials_file = var.shared_credentials_file
-  skip_region_validation  = var.skip_region_validation
-  slb                     = module.slb.this_slb_id
-  listeners               = local.https_listeners
-  health_check            = var.health_check
-  advanced_setting        = var.advanced_setting
-  x_forwarded_for         = var.x_forwarded_for
-  ssl_certificates        = local.ssl_certificates
+  source = "terraform-alicloud-modules/slb-listener/alicloud"
+
+  create = var.create_slb || var.use_existing_slb ? var.create_https_listener : false
+
+  slb              = module.slb.this_slb_id
+  listeners        = local.https_listeners
+  health_check     = var.health_check
+  advanced_setting = var.advanced_setting
+  x_forwarded_for  = var.x_forwarded_for
+  ssl_certificates = local.ssl_certificates
 }
 
 resource "alicloud_slb_rule" "this" {
   count            = local.create_rule ? length(var.rules) : 0
   load_balancer_id = module.slb.this_slb_id
-  name             = "TF-slb-http-module"
-  listener_sync    = "on"
+  name             = var.name
+  listener_sync    = var.listener_sync
   domain           = lookup(var.rules[count.index], "domain", null)
   url              = lookup(var.rules[count.index], "url", null)
   frontend_port    = lookup(var.rules[count.index], "frontend_port")
@@ -102,7 +96,7 @@ resource "alicloud_slb_rule" "this" {
 
 resource "alicloud_slb_server_certificate" "this" {
   count              = local.create_server_certificate && local.server_certificate != "" && local.private_key != "" ? 1 : 0
-  name               = "TF-slb-http-module"
+  name               = var.name
   server_certificate = contains(split("\n", local.server_certificate), "-----BEGIN CERTIFICATE-----") ? local.server_certificate : file(local.server_certificate)
   private_key        = contains(split("\n", local.private_key), "-----BEGIN RSA PRIVATE KEY-----") ? local.private_key : file(local.private_key)
 }

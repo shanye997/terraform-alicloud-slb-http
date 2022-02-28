@@ -64,9 +64,7 @@ output "this_slb_tags" {
   value       = module.slb.this_slb_tags
 }
 
-
 // Output the new slb listener created
-
 output "this_slb_http_listener_ids" {
   description = "The id of slb listeners"
   value       = module.slb_http_listener.this_slb_listener_ids
@@ -78,7 +76,6 @@ output "this_slb_https_listener_ids" {
 }
 
 // Output the new slb rule created
-
 output "rule_ids" {
   description = "The ids of slb rules"
   value       = alicloud_slb_rule.this.*.id
